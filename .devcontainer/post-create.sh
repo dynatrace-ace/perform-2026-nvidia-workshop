@@ -5,7 +5,7 @@ export DT_BASE_URL=$(curl -s -X POST $HOST_BASE_URL/dynatrace-url \
   -H "Content-Type: application/json" \
   -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.dynatrace_url')
 
-export DYNATRACE_API_TOKEN=$(curl -s -X POST $HOST_BASE_URL/dynatrace-token \
+export DT_API_TOKEN=$(curl -s -X POST $HOST_BASE_URL/dynatrace-token \
   -H "Content-Type: application/json" \
   -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.dynatrace_api_token')
 
@@ -20,6 +20,13 @@ export TAVILY_API_KEY=$(curl -s -X POST $HOST_BASE_URL/tavily-key \
 export OTEL_OTLP_ENDPOINT=$(curl -s -X POST $HOST_BASE_URL/otel-endpoint \
   -H "Content-Type: application/json" \
   -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.otel_otlp_endpoint')
+
+# copy variables to .bashrc
+echo "export DT_BASE_URL=\"$DT_BASE_URL\"" >> ~/.bashrc
+echo "export DT_API_TOKEN=\"$DT_API_TOKEN\"" >> ~/.bashrc
+echo "export NVIDIA_API_KEY=\"$NVIDIA_API_KEY\"" >> ~/.bashrc
+echo "export TAVILY_API_KEY=\"$TAVILY_API_KEY\"" >> ~/.bashrc
+echo "export OTEL_OTLP_ENDPOINT=\"$OTEL_OTLP_ENDPOINT\"" >> ~/.bashrc
 
 # start up Otel Collector
 . "./otel/start-otel.sh"
