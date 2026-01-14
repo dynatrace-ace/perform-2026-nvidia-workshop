@@ -1,0 +1,60 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+  prometheus:
+     config:
+       scrape_configs:
+       - job_name: dcgm
+         scrape_interval: 60s
+         static_configs:
+         - targets:
+            - ${env:DCGM_TARGET}
+       - job_name: nim-llama-70b-instruct
+         scrape_interval: 10s
+         metrics_path: /v1/metrics
+         static_configs:
+         - targets:
+            - ${env:NIM1_TARGET}
+       - job_name: llama-3.1-nemoguard-8b-content-safety
+         scrape_interval: 10s
+         metrics_path: /v1/metrics
+         static_configs:
+         - targets:
+            - ${env:NIM2_TARGET}
+       - job_name: llama-3.1-nemoguard-8b-topic-control
+         scrape_interval: 10s
+         metrics_path: /v1/metrics
+         static_configs:
+         - targets:
+            - ${env:NIM3_TARGET}
+processors:
+  cumulativetodelta:
+    max_staleness: 25h
+
+exporters:
+  otlphttp:
+    endpoint: "${env:DT_BASE_URL}/api/v2/otlp"
+    headers:
+      Authorization: "Api-Token ${env:DT_API_TOKEN}"
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: []
+      exporters: [otlphttp]
+    metrics:
+      receivers: [otlp,prometheus]
+      processors: [cumulativetodelta]
+      exporters: [otlphttp]
+    logs:
+      receivers: [otlp]
+      processors: []
+      exporters: [otlphttp]
+  telemetry:
+    logs:
+      level: "debug"
