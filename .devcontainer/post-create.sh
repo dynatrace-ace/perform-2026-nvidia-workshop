@@ -19,3 +19,6 @@ export TAVILY_API_KEY=$(curl -s -X POST $HOST_BASE_URL/tavily-key \
 export OTEL_OTLP_ENDPOINT=$(curl -s -X POST $HOST_BASE_URL/otel-endpoint \
   -H "Content-Type: application/json" \
   -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.otel_otlp_endpoint')
+
+echo "Codespace setup complete."
+echo "Dynatrace API URL is: $DT_BASE_URL"
