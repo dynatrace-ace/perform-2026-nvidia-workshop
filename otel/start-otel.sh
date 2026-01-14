@@ -2,9 +2,7 @@
 
 # Script to start Docker containers using specified config file
 # Usage: ./start-otel.sh [config.yaml|config-dcgm-nim.yaml|config-dcgm.yaml]
-# Default: config.yaml
-
-source .env 
+# Default: config.yaml 
 
 # Get config file from command line argument or use default
 CONFIG_FILE=${1:-config.yaml}

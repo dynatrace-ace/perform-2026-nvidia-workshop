@@ -29,7 +29,9 @@ echo "export TAVILY_API_KEY=\"$TAVILY_API_KEY\"" >> ~/.bashrc
 echo "export OTEL_OTLP_ENDPOINT=\"$OTEL_OTLP_ENDPOINT\"" >> ~/.bashrc
 
 # start up Otel Collector
-. "./otel/start-otel.sh"
+cd /workspaces/perform-2026-nvidia-workshop/otel
+./start-otel.sh
+cd /workspaces/perform-2026-nvidia-workshop
 
 echo "Codespace setup complete."
 echo "Dynatrace API URL is: $DT_BASE_URL"
