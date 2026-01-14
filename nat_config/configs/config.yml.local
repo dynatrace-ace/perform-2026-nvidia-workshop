@@ -21,7 +21,7 @@ general:
         _type: otelcollector
         # The endpoint where you have deployed the otel collector
         endpoint: "${OTEL_OTLP_ENDPOINT:-http://localhost:4318}/v1/traces"
-        project: "nat_workflow${GITHUB_USER:+-${GITHUB_USER}}"
+        project: nat_workflow
 
 functions:
   web_search:
