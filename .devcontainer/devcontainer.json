@@ -13,7 +13,7 @@
   // // Add recommended secrets
   "secrets": {
     "WORKSHOP_PASSWORD": {
-      "description": "Enter workshop password by the instructor"
+      "description": "Enter the workshop password provided by the instructor"
     }
   },
   "forwardPorts": [
