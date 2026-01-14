@@ -1,5 +1,6 @@
 HOST_BASE_URL=http://98.88.29.112:3800
 
+# Get the workshop password from the secrets server
 export DT_BASE_URL=$(curl -s -X POST $HOST_BASE_URL/dynatrace-url \
   -H "Content-Type: application/json" \
   -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.dynatrace_url')
@@ -19,6 +20,9 @@ export TAVILY_API_KEY=$(curl -s -X POST $HOST_BASE_URL/tavily-key \
 export OTEL_OTLP_ENDPOINT=$(curl -s -X POST $HOST_BASE_URL/otel-endpoint \
   -H "Content-Type: application/json" \
   -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.otel_otlp_endpoint')
+
+# start up Otel Collector
+. "../otel/start-otel.sh"
 
 echo "Codespace setup complete."
 echo "Dynatrace API URL is: $DT_BASE_URL"
