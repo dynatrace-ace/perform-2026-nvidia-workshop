@@ -1,4 +1,4 @@
-HOST_BASE_URL=http://52.186.168.229:3800
+HOST_BASE_URL=http://98.88.29.112:3800
 
 export DT_BASE_URL=$(curl -s -X POST $HOST_BASE_URL/dynatrace-url \
   -H "Content-Type: application/json" \
