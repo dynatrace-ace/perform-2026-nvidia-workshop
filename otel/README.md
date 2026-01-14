@@ -67,18 +67,21 @@ Run this shell script to start the container using Docker. Optionally specify a 
 **Option 1 - OTLP receiver only (defaults to use config.yaml):**
 
 ```bash
+source .env
 ./start-otel.sh
 ```
 
 **Option 2 - OTLP receiver plus Prometheus metric scraping for DCGM exporter:**
 
 ```bash
+source .env
 ./start-otel.sh config-dcgm.yaml
 ```
 
 **Option 3 - OTLP receiver plus Prometheus metric scraping for DCGM exporter and NIM Services:**
 
 ```bash
+source .env
 ./start-otel.sh config-dcgm-nim.yaml
 ```
 

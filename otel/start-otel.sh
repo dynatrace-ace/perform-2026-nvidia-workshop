@@ -4,8 +4,6 @@
 # Usage: ./start-otel.sh [config.yaml|config-dcgm-nim.yaml|config-dcgm.yaml]
 # Default: config.yaml
 
-source .env 
-
 # Get config file from command line argument or use default
 CONFIG_FILE=${1:-config.yaml}
 
