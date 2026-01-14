@@ -22,7 +22,7 @@ export OTEL_OTLP_ENDPOINT=$(curl -s -X POST $HOST_BASE_URL/otel-endpoint \
   -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.otel_otlp_endpoint')
 
 # start up Otel Collector
-. "../otel/start-otel.sh"
+. "./otel/start-otel.sh"
 
 echo "Codespace setup complete."
 echo "Dynatrace API URL is: $DT_BASE_URL"
