@@ -4,6 +4,8 @@
 # Usage: ./start-otel.sh [config.yaml|config-dcgm-nim.yaml|config-dcgm.yaml]
 # Default: config.yaml
 
+source .env 
+
 # Get config file from command line argument or use default
 CONFIG_FILE=${1:-config.yaml}
 
@@ -44,6 +46,9 @@ start_container() {
     
     case "$config_file" in
         config.yaml)
+            echo "Starting with config.yaml..."
+            echo "DT_BASE_URL = $DT_BASE_URL"
+            echo "Container = "
             docker run -d --rm -v "$(pwd)"/${config_file}:/etc/otelcol/config.yaml \
             --name ${container_name} \
             -e DT_BASE_URL=$DT_BASE_URL \
@@ -53,6 +58,11 @@ start_container() {
             dynatrace/dynatrace-otel-collector:latest
             ;;
         config-dcgm.yaml)
+            echo "Starting with config-dcgm.yaml..."
+            echo "DT_BASE_URL = $DT_BASE_URL"
+            echo "DCGM_HOST = $DCGM_HOST"
+            echo "DCGM_PORT = $DCGM_PORT"
+            echo "Container = "
             docker run -d --rm -v "$(pwd)"/${config_file}:/etc/otelcol/config.yaml \
             --name ${container_name} \
             -e DT_BASE_URL=$DT_BASE_URL \
@@ -64,6 +74,11 @@ start_container() {
             dynatrace/dynatrace-otel-collector:latest
             ;;
         config-dcgm-nim.yaml)
+            echo "Starting with config-dcgm-nim.yaml..."
+            echo "DT_BASE_URL = $DT_BASE_URL"
+            echo "DCGM_PORT = $DCGM_PORT"
+            echo "NIM_HOST = $NIM_HOST"
+            echo "Container = "
             docker run -d --rm -v "$(pwd)"/${config_file}:/etc/otelcol/config.yaml \
             --name ${container_name} \
             -e DT_BASE_URL=$DT_BASE_URL \
