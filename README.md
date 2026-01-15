@@ -116,7 +116,11 @@ Type | Prompt
 Good | `Prompt1`
 Bad | `Prompt2`
 
-## 📚 Resources
+## 📚 Setup Details
+
+See the [SETUP.md](SETUP.md) guide for details.
+
+## 📚 Reference
 
 - [Dynatrace AI and LLM Observability](https://www.dynatrace.com/solutions/ai-observability/)
 - [NVIDIA NeMo Agent Toolkit](https://docs.nvidia.com/nemo/agent-toolkit/)
