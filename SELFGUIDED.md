@@ -36,6 +36,14 @@ NVIDIA [NeMo Guardrails](https://github.com/NVIDIA/NeMo-Guardrails) combined wit
 
     If not done already, get a Tavily API KEY API Key (get from [tavily.com](https://www.tavily.com)) and adjust `.env` with your Tavily API Key for `TAVILY_API_KEY`
 
+    Once set, you can review your API usage with this command.
+    
+    ```bash
+    curl --request GET \
+        --url https://api.tavily.com/usage  \
+        --header "Authorization: Bearer $TAVILY_API_KEY" | jq .
+    ```
+
 4. **Set NVIDIA API Key**
 
     If not done already, get a NVIDIA API Key (get from [build.nvidia.com](https://build.nvidia.com)) and adjust `.env` with your NVIDIA API Key for `NVIDIA_API_KEY`
