@@ -88,7 +88,7 @@ NVIDIA [NeMo Guardrails](https://github.com/NVIDIA/NeMo-Guardrails) combined wit
 
 ## 📚 Setup Details
 
-See the [SETUP.md](SETUP.md) guide for details.
+See the [RESOURCES.md](RESOURCES.md) guide for details.
 
 ## 📚 Reference
 

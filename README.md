@@ -118,7 +118,7 @@ Bad | `Prompt2`
 
 ## 📚 Setup Details
 
-See the [SETUP.md](SETUP.md) guide for details.
+See the [RESOURCES.md](RESOURCES.md) guide for details.
 
 ## 📚 Reference
 
