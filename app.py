@@ -404,7 +404,7 @@ def main():
             st.rerun()
         
         # Process query
-        nat_config_path = str(Path(__file__).parent / "nat_config" / "configs" / "config.yml")
+        nat_config_path = str(Path(__file__).parent / "src" / "nat_simple_web_query" / "configs" / "config.yml")
         if submit_button and user_input.strip():
             if not rails:
                 st.error("❌ Cannot process query: Guardrails not initialized")
