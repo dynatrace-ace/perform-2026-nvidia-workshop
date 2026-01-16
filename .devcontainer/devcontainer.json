@@ -15,8 +15,5 @@
     "WORKSHOP_PASSWORD": {
       "description": "Enter the workshop password provided by the instructor"
     }
-  },
-  "forwardPorts": [
-    8501
-  ]
+  }
 }
