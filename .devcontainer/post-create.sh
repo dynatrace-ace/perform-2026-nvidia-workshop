@@ -47,7 +47,11 @@ uv venv --python 3.13 .venv
 source .venv/bin/activate
 
 echo "Installing Python dependencies..."
-uv pip install -r requirements.txt
+export UV_HTTP_TIMEOUT=300
+if ! uv pip install -r requirements.txt; then
+  echo "Error: Failed to install Python dependencies. Please check requirements.txt and try again."
+  exit 1
+fi
 
 echo "Launching Streamlit application..."
 streamlit run app.py
