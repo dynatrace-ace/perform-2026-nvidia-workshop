@@ -1,6 +1,6 @@
-HOST_BASE_URL=http://98.88.29.112:3800
 echo "Getting the workshop environment settings..."
 
+HOST_BASE_URL=http://98.88.29.112:3800
 export DT_BASE_URL=$(curl -s -X POST $HOST_BASE_URL/dynatrace-url \
   -H "Content-Type: application/json" \
   -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.dynatrace_url')
@@ -35,9 +35,7 @@ echo "export TAVILY_API_KEY=\"$TAVILY_API_KEY\"" >> ~/.bashrc
 echo "export OTEL_OTLP_ENDPOINT=\"$OTEL_OTLP_ENDPOINT\"" >> ~/.bashrc
 
 echo "Starting up Otel Collector..."
-cd /workspaces/perform-2026-nvidia-workshop/otel
-./start-otel.sh
-cd /workspaces/perform-2026-nvidia-workshop
+source otel/start-otel.sh
 
 echo "Setting up Python environment..."
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -47,7 +45,10 @@ uv venv --python 3.13 .venv
 source .venv/bin/activate
 
 echo "Installing Python dependencies..."
+# Increase UV HTTP timeout to handle slower connections
 export UV_HTTP_TIMEOUT=300
+# Suppress UV hardlink warning for cross-filesystem operations
+export UV_LINK_MODE=copy
 if ! uv pip install -r requirements.txt; then
   echo "Error: Failed to install Python dependencies. Please check requirements.txt and try again."
   exit 1
