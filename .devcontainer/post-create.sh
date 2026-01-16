@@ -35,7 +35,9 @@ echo "export TAVILY_API_KEY=\"$TAVILY_API_KEY\"" >> ~/.bashrc
 echo "export OTEL_OTLP_ENDPOINT=\"$OTEL_OTLP_ENDPOINT\"" >> ~/.bashrc
 
 echo "Starting up Otel Collector..."
-source otel/start-otel.sh
+cd /workspaces/perform-2026-nvidia-workshop/otel
+./start-otel.sh
+cd /workspaces/perform-2026-nvidia-workshop
 
 echo "Setting up Python environment..."
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -54,8 +56,8 @@ if ! uv pip install -r requirements.txt; then
   exit 1
 fi
 
-echo "Launching Streamlit application..."
-streamlit run app.py
-
 echo "Codespace setup complete."
 echo "Dynatrace API URL is: $DT_BASE_URL"
+
+echo "Launching Streamlit application..."
+streamlit run app.py
