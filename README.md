@@ -1,6 +1,8 @@
 <img alt="Workshop" src="static/nvidia-workshop-header.png">
 
-This 90-minute instructor-led session where you'll explore a chat-bot app built with NVIDIA NeMo for training, safety and optimization, and NVIDIA NIM GPU-accelerated inference microservices for AI models. Learn how to use NeMo Agent Toolkit for coordinating and profiling agent workflows; and NeMo Guardrails to keep agentic AI applications reliable and aligned. With Dynatrace monitoring, you'll track real-time performance and cost, follow end-to-end traces from prompt to response, and find the root cause of errors across the LLM chain and connected services. Each component is introduced clearly and used hands-on so you can repeat the steps in your own environment.
+This 90-minute instructor-led session where you'll explore a chat-bot app built with NVIDIA NeMo for training, safety and optimization, and NVIDIA NIM GPU-accelerated inference microservices for AI models. Learn how to use NeMo Agent Toolkit for coordinating and profiling agent workflows; and NeMo Guardrails to keep agentic AI applications reliable and aligned. 
+
+With Dynatrace monitoring, you'll track real-time performance and cost, follow end-to-end traces from prompt to response, and find the root cause of errors across the LLM chain and connected services. Each component is introduced clearly and used hands-on so you can repeat the steps in your own environment.
 
 ## Setup
 
@@ -20,49 +22,34 @@ This 90-minute instructor-led session where you'll explore a chat-bot app built 
 
 3. **Verify Start codespace**
 
-    This will take a few minutes to complete.  Once codespace is completed the startup, you should see this:
+    This will take a few minutes to complete and will perform the following:
+    * Retrieve and save required environment settings
+    * Start an OpenTelemetry collector
+    * Create Python virtual environment and install Python dependencies
+    * Start the sample web app
+    
+    Once codespace is completed the startup, you should see this:
 
     <img alt="Workshop setup" src="static/codespace-complete.png" width="75%">
 
+3. **View app in browser**
 
-## 🔧 Prepare environment
+    The app will be available by a URL that is proxied by GitHub codespaces.  For example, the URL may look like this `https://fluffy-garbanzo-xrvxjrwpx753vwx-8501.app.github.dev`
 
-From the terminal prompt run these commands.
+    To view app, follow this guide:
 
-1. **Install Python virtual environment**
+    <img alt="Workshop setup" src="static/codespace-open-app.png" width="75%">
 
-    ```bash
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-    ```
-
-2. **Create Python virtual environment**
-
-    ```bash
-    uv venv --python 3.13 .venv
-    source .venv/bin/activate
-    ```
-
-3. **Install Python dependencies**
-
-    ```bash
-    uv pip install -r requirements.txt
-    ```
 
 ## 🚀 Run the Application locally using Python
 
-1. **Start sample App**
+If you need to restart the sample App, then run the following commands
 
-    Start app which will open the web UI. 
-
-    ```bash
-    streamlit run app.py
-    ```
-
-2. **View app in browser**
-
-The app will be available by a URL that is proxied by GitHub codespaces. 
-    
-For example, the URL may look like this `https://fluffy-garbanzo-xrvxjrwpx753vwx-8501.app.github.dev`
+```bash
+cd /workspaces/perform-2026-nvidia-workshop
+source .venv/bin/activate
+streamlit run app.py
+```
 
 ## 📄 Example prompts
 
