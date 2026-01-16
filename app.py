@@ -1,6 +1,4 @@
 # environment variables used:
-# - DT_BASE_URL: Dynatrace base URL for OTLP endpoint (no default)
-# - DT_API_TOKEN: Dynatrace API token for authentication (no default)
 # - OTEL_OTLP_ENDPOINT: OpenTelemetry OTLP exporter endpoint (default: http://localhost:4317)
 
 import asyncio
@@ -9,6 +7,7 @@ import io
 import logging
 import warnings
 import os
+import time
 from pathlib import Path
 
 # Suppress Pydantic warnings BEFORE importing libraries that use Pydantic
@@ -53,57 +52,41 @@ def initialize_traceloop():
     """Initialize Traceloop once (cached to prevent re-initialization on every Streamlit rerun)."""
 
     print("✓ Initializing Traceloop SDK...")
-    # Get Dynatrace configuration from environment variables with error handling
-    dt_base_url = os.environ.get('DT_BASE_URL')
-    dt_api_token = os.environ.get('DT_API_TOKEN')
+    Traceloop.init(
+        app_name=SERVICE_NAME,
+        api_endpoint=os.environ.get('OTEL_OTLP_ENDPOINT', 'http://localhost:4318'),
+        disable_batch=True,
+        should_enrich_metrics=True,
+    )
+    print("✓ Traceloop SDK initialized with: "+ os.environ.get('OTEL_OTLP_ENDPOINT', 'http://localhost:4318'))
     
-    # validate Dynatrace configuration
-    if not dt_base_url or not dt_api_token:
-        print("⚠️  Warning: DT_BASE_URL and/or DT_API_TOKEN environment variables not set.")
-        print("    Telemetry export to Dynatrace will be disabled.")
-        print("    Set these variables if you want to export telemetry to Dynatrace.")
-    else:
-        dynatrace_oltp_url = dt_base_url + "/api/v2/otlp"
-        dynatrace_api_token = "Api-Token " + dt_api_token
-        headers = {"Authorization": dynatrace_api_token}
-        
-        # Initialize Traceloop with Dynatrace endpoint
-        Traceloop.init(
-            app_name=SERVICE_NAME,
-            api_endpoint=dynatrace_oltp_url,
-            disable_batch=True,
-            headers=headers,
-            should_enrich_metrics=True,
-        )
-        print("✓ Traceloop SDK initialized")
-
 # ------------------------------------------------------------------------------
 # Configure OpenTelemetry for guardrails
 # ------------------------------------------------------------------------------
 
-@st.cache_resource(show_spinner="Initializing OpenTelemetry...")
-def initialize_opentelemetry():
-    """Initialize OpenTelemetry once (cached to prevent re-initialization on every Streamlit rerun)."""
+#@st.cache_resource(show_spinner="Initializing OpenTelemetry...")
+#def initialize_opentelemetry():
+#    """Initialize OpenTelemetry once (cached to prevent re-initialization on every Streamlit rerun)."""
 
-    print("✓ Initializing OpenTelemetry TracerProvider...")
-    # these spans will be connected within the Traceloop spans
-    # https://docs.nvidia.com/nemo/guardrails/latest/user-guides/tracing/opentelemetry-integration.html
+#     print("✓ Initializing OpenTelemetry TracerProvider...")
+#     # these spans will be connected within the Traceloop spans
+#     # https://docs.nvidia.com/nemo/guardrails/latest/user-guides/tracing/opentelemetry-integration.html
     
-    resource = Resource.create({"service.name": SERVICE_NAME})
-    tracer_provider = TracerProvider(resource=resource)
+#     resource = Resource.create({"service.name": SERVICE_NAME})
+#     tracer_provider = TracerProvider(resource=resource)
     
-    # use this option for a quick export to console, but need to comment out otlp_exporter below
-    #console_exporter = ConsoleSpanExporter()
-    #tracer_provider.add_span_processor(BatchSpanProcessor(console_exporter))
+#     # use this option for a quick export to console, but need to comment out otlp_exporter below
+#     #console_exporter = ConsoleSpanExporter()
+#     #tracer_provider.add_span_processor(BatchSpanProcessor(console_exporter))
     
-    # use this for exporting to Otlp endpoint
-    otlp_exporter_endpoint = os.environ.get('OTEL_OTLP_ENDPOINT', 'http://localhost:4318')
-    otlp_exporter = OTLPSpanExporter(endpoint=otlp_exporter_endpoint, insecure=True)
-    tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
-    trace.set_tracer_provider(tracer_provider)
-    print("✓ OpenTelemetry TracerProvider initialized")
-    print(f"   otlp exporter endpoint : {otlp_exporter_endpoint or 'Not set'}")
-    print(f"   service name           : {SERVICE_NAME}")
+#     # use this for exporting to Otlp endpoint
+#     otlp_exporter_endpoint = os.environ.get('OTEL_OTLP_ENDPOINT', 'http://localhost:4318')
+#     otlp_exporter = OTLPSpanExporter(endpoint=otlp_exporter_endpoint, insecure=True)
+#     tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
+#     trace.set_tracer_provider(tracer_provider)
+#     print("✓ OpenTelemetry TracerProvider initialized")
+#     print(f"   otlp exporter endpoint : {otlp_exporter_endpoint or 'Not set'}")
+#     print(f"   service name           : {SERVICE_NAME}")
 
 # ------------------------------------------------------------------------------
 # Suppress verbose NAT agent logging and warnings
@@ -171,9 +154,13 @@ def initialize_guardrails():
 async def check_input_guardrails(rails, user_input):
     """Apply input guardrails and return (is_safe, message)."""
     try:
+        start_time = time.time()
         input_result = await rails.generate_async(
             messages=[{"role": "user", "content": user_input}]
         )
+        end_time = time.time()
+        duration = end_time - start_time
+        print(f"⏱️  Input guardrail execution time: {duration:.2f} seconds")
         
         # Check if input was blocked
         # Handle GenerationResponse objects (from NeMo Guardrails)
@@ -198,12 +185,16 @@ async def check_input_guardrails(rails, user_input):
 async def check_output_guardrails(rails, user_input, workflow_result):
     """Apply output guardrails and return (is_safe, message)."""
     try:
+        start_time = time.time()
         output_result = await rails.generate_async(
             messages=[
                 {"role": "user", "content": user_input},
                 {"role": "assistant", "content": workflow_result}
             ]
         )
+        end_time = time.time()
+        duration = end_time - start_time
+        print(f"⏱️  Output guardrail execution time: {duration:.2f} seconds")
         
         # Check if output was blocked
         # Handle GenerationResponse objects (from NeMo Guardrails)
@@ -237,8 +228,12 @@ async def run_nat_workflow(user_input, nat_config_path):
     try:
         with contextlib.redirect_stderr(stderr_capture):
             async with load_workflow(nat_config_path) as workflow:
+                start_time = time.time()
                 async with workflow.run(user_input) as runner:
                     workflow_result = await runner.result(to_type=str)
+                end_time = time.time()
+                duration = end_time - start_time
+                print(f"⏱️  NAT workflow execution time: {duration:.2f} seconds")
         return True, str(workflow_result)
     except Exception as e:
         error_msg = str(e)
@@ -359,7 +354,7 @@ def main():
     """Main Streamlit application."""
     # Initialize components will caching to prevent re-initialization on every rerun
     initialize_traceloop()
-    initialize_opentelemetry()
+    #initialize_opentelemetry()
     configure_logging()
     rails = initialize_guardrails() 
     # Header
