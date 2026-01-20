@@ -18,5 +18,8 @@
   },
   "forwardPorts": [
     8501
-  ]
+  ],
+    "hostRequirements": {
+    "cpus": 4
+  }
 }
