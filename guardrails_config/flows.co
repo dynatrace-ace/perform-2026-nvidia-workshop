@@ -1,0 +1,63 @@
+# Jailbreak detection flow
+define flow check_jailbreak
+  $is_jailbreak = execute check_jailbreak
+  
+  if $is_jailbreak
+    bot refuse to respond
+    stop
+
+# Blocked terms check flow
+define flow check_blocked_terms
+  $has_blocked_terms = execute check_blocked_terms
+  
+  if $has_blocked_terms
+    bot refuse harmful content
+    stop
+
+# Input length check flow
+define flow check_input_length
+  $is_too_long = execute check_input_length
+  
+  if $is_too_long
+    bot refuse too long
+    stop
+
+# Politics check flow
+define flow check_politics
+  $is_political = execute check_politics
+  
+  if $is_political
+    bot refuse politics
+    stop
+
+# Fallback: Input topic relevance check using keywords
+define flow check_input_topic
+  $is_off_topic = execute check_input_topic
+  
+  if $is_off_topic
+    bot refuse off topic
+    stop
+
+# Fallback: Output topic relevance check using keywords
+define flow check_output_relevance
+  $is_off_topic = execute check_output_relevance
+  
+  if $is_off_topic
+    bot refuse off topic
+    stop
+
+# Refusal messages
+define bot refuse to respond
+  "I'm sorry, I can't respond to that request. Please rephrase your question."
+
+define bot refuse harmful content
+  "I cannot assist with requests involving harmful, dangerous, or illegal content. Please ask appropriate questions."
+
+define bot refuse too long
+  "Your input is too long. Please keep your questions under 2000 characters."
+
+define bot refuse off topic
+  "I'm not able to help with that request. Please ask a different question."
+
+define bot refuse politics
+  "I'm sorry, I cannot discuss political topics, politicians, or elections. Please ask about something else."

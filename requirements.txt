@@ -1,0 +1,17 @@
+# Streamlit for web interface
+streamlit
+
+# NeMo Guardrails for AI safety
+nemoguardrails>=0.14.0
+
+# NVIDIA NAT (NeMo Agent Toolkit) with extensions
+nvidia-nat[langchain]~=1.3
+nvidia-nat[telemetry]~=1.3
+
+# Vector search
+usearch~=2.21.0
+
+# OpenTelemetry for observability
+opentelemetry-sdk
+opentelemetry-exporter-otlp
+traceloop-sdk

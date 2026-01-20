@@ -9,7 +9,7 @@
     "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
   // Use 'postAttachCommand' to set env variables
-  "postAttachCommand": "chmod +x .devcontainer/post-create.sh && source .devcontainer/post-create.sh",
+  "postAttachCommand": "source .devcontainer/post-create.sh",
   // // Add recommended secrets
   "secrets": {
     "WORKSHOP_PASSWORD": {
