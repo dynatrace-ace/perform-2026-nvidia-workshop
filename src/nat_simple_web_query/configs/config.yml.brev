@@ -20,14 +20,14 @@ llms:
   nim_llm:
     _type: nim
     model_name: meta/llama-3.1-70b-instruct
-    base_url: "${NVIDIA_MODEL_ENDPOINT_8001}"
+    base_url: NVIDIA_MODEL_ENDPOINT_8001_PLACEHOLDER
     temperature: 0.0
 
 embedders:
   nv-embedqa-e5-v5:
     _type: nim
     model_name: nvidia/nv-embedqa-e5-v5
-    base_url: "${NVIDIA_MODEL_ENDPOINT_8004}"
+    base_url: NVIDIA_MODEL_ENDPOINT_8004_PLACEHOLDER
 
 workflow:
   _type: react_agent
