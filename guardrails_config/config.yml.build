@@ -1,5 +1,4 @@
 # NeMo Guardrails Configuration
-
 models:
   - type: main
     engine: nvidia_ai_endpoints
