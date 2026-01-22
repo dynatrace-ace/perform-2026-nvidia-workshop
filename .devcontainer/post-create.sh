@@ -94,7 +94,7 @@ echo "Codespace setup complete."
 echo "Dynatrace API URL is: $DT_BASE_URL"
 
 echo "Updating configuration files..."
-python update_config.py --config-type=brev
+python update_config.py brev
 
 echo "Launching Streamlit application..."
 streamlit run app.py
