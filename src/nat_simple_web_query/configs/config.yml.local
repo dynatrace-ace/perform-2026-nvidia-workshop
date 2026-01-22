@@ -10,7 +10,7 @@ general:
 
 functions:
   web_search:
-    _type: tavily_search
+    _type: tavily_internet_search
     description: "Search the web for current information. Use this tool for any questions that require up-to-date information from the internet."
     max_results: 5
   current_datetime:
