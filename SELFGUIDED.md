@@ -90,6 +90,9 @@ NVIDIA [NeMo Guardrails](https://github.com/NVIDIA/NeMo-Guardrails) combined wit
     # Set environment variables in `.env` and then source the file
     source .env
     
+    # update the configuration files
+    python update_config.py --config-type=build
+
     # Start app which will open the web UI in a local browser
     streamlit run app.py
     ```
