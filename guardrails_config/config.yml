@@ -3,23 +3,23 @@ models:
   # Main LLM - Local NIM deployment on port 8001
   - type: main
     engine: nim
-    model: meta/llama-3.1-8b-instruct
+    model: meta/llama-3.1-70b-instruct
     parameters:
-      base_url: "${NVIDIA_MODEL_ENDPOINT_8001}"
+      base_url: $NVIDIA_MODEL_ENDPOINT_8001
 
   # Content Safety Model - Local NIM deployment on port 8002
   - type: content_safety
     engine: nim
     model: nvidia/llama-3.1-nemoguard-8b-content-safety
     parameters:
-      base_url: "${NVIDIA_MODEL_ENDPOINT_8002}"
+      base_url: $NVIDIA_MODEL_ENDPOINT_8002
 
   # Topic Control Model - Local NIM deployment on port 8003
   - type: topic_control
     engine: nim
     model: nvidia/llama-3.1-nemoguard-8b-topic-control
     parameters:
-      base_url: "${NVIDIA_MODEL_ENDPOINT_8003}"
+      base_url: $NVIDIA_MODEL_ENDPOINT_8003
 
 instructions:
   - type: general
