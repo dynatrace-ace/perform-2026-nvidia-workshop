@@ -62,34 +62,6 @@ def initialize_traceloop():
     print("✓ Traceloop SDK initialized with: "+ os.environ.get('OTEL_OTLP_ENDPOINT', 'http://localhost:4318'))
     
 # ------------------------------------------------------------------------------
-# Configure OpenTelemetry for guardrails
-# ------------------------------------------------------------------------------
-
-#@st.cache_resource(show_spinner="Initializing OpenTelemetry...")
-#def initialize_opentelemetry():
-#    """Initialize OpenTelemetry once (cached to prevent re-initialization on every Streamlit rerun)."""
-
-#     print("✓ Initializing OpenTelemetry TracerProvider...")
-#     # these spans will be connected within the Traceloop spans
-#     # https://docs.nvidia.com/nemo/guardrails/latest/user-guides/tracing/opentelemetry-integration.html
-    
-#     resource = Resource.create({"service.name": SERVICE_NAME})
-#     tracer_provider = TracerProvider(resource=resource)
-    
-#     # use this option for a quick export to console, but need to comment out otlp_exporter below
-#     #console_exporter = ConsoleSpanExporter()
-#     #tracer_provider.add_span_processor(BatchSpanProcessor(console_exporter))
-    
-#     # use this for exporting to Otlp endpoint
-#     otlp_exporter_endpoint = os.environ.get('OTEL_OTLP_ENDPOINT', 'http://localhost:4318')
-#     otlp_exporter = OTLPSpanExporter(endpoint=otlp_exporter_endpoint, insecure=True)
-#     tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
-#     trace.set_tracer_provider(tracer_provider)
-#     print("✓ OpenTelemetry TracerProvider initialized")
-#     print(f"   otlp exporter endpoint : {otlp_exporter_endpoint or 'Not set'}")
-#     print(f"   service name           : {SERVICE_NAME}")
-
-# ------------------------------------------------------------------------------
 # Suppress verbose NAT agent logging and warnings
 # ------------------------------------------------------------------------------
 @st.cache_resource(show_spinner="Configuring logging...")
@@ -337,7 +309,6 @@ def main():
     
     # Initialize components will caching to prevent re-initialization on every rerun
     initialize_traceloop()
-    #initialize_opentelemetry()
     configure_logging()
     rails = initialize_guardrails() 
 
@@ -391,7 +362,7 @@ def main():
     
     # Header
     st.markdown('<div class="main-header">Operationalizing AI at Scale</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-header">NVIDIA NeMo Guardrails and Dynatrace Insights</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-header">NVIDIA NeMo Agent Toolkit, NeMo Guardrails and Dynatrace Insights</div>', unsafe_allow_html=True)
     st.markdown('<div style="text-align: center;"><img src="app/static/dt-nvidia.png" alt="Dynatrace and NVIDIA" width="300" style="margin: auto; display: block;"></div>', unsafe_allow_html=True)
 
     # Main content area
