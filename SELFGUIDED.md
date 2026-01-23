@@ -6,6 +6,10 @@ NVIDIA [NeMo Guardrails](https://github.com/NVIDIA/NeMo-Guardrails) combined wit
 - **Validate input and output** for safety and appropriateness
 - **Stay focused on topic** with content relevance checking
 
+## Setup
+
+<img alt="Selfguided setup" src="static/selfguided-setup.png" width="75%">
+
 ## 🚀 Quick Start
 
 ### Prerequisites
