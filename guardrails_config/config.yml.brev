@@ -1,17 +1,25 @@
 # NeMo Guardrails Configuration
 models:
+  # Main LLM - Local NIM deployment on port 8001
   - type: main
-    engine: nvidia_ai_endpoints
+    engine: nim
     model: meta/llama-3.1-70b-instruct
+    parameters:
+      base_url: NVIDIA_MODEL_ENDPOINT_8001_PLACEHOLDER
 
+  # Content Safety Model - Local NIM deployment on port 8002
   - type: content_safety
-    engine: nvidia_ai_endpoints
+    engine: nim
     model: nvidia/llama-3.1-nemoguard-8b-content-safety
+    parameters:
+      base_url: NVIDIA_MODEL_ENDPOINT_8002_PLACEHOLDER
 
-  # Topic Control Model for semantic topic validation
+  # Topic Control Model - Local NIM deployment on port 8003
   - type: topic_control
-    engine: nvidia_ai_endpoints
+    engine: nim
     model: nvidia/llama-3.1-nemoguard-8b-topic-control
+    parameters:
+      base_url: NVIDIA_MODEL_ENDPOINT_8003_PLACEHOLDER
 
 instructions:
   - type: general
@@ -40,7 +48,7 @@ rails:
   output:
     flows:
       # Content safety check using NeMoGuard Content Safety model
-      - content safety check output $model=content_safety     
+      - content safety check output $model=content_safety
 
   config:
     streaming: true

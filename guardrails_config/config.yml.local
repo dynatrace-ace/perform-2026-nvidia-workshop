@@ -1,5 +1,4 @@
 # NeMo Guardrails Configuration
-
 models:
   # Main LLM - Local NIM deployment on port 8001
   - type: main

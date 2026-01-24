@@ -67,3 +67,4 @@ pip-delete-this-directory.txt
 *.bak
 .env
 bak/
+config.yml

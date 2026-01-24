@@ -7,6 +7,7 @@ import io
 import logging
 import warnings
 import os
+import sys
 import time
 from pathlib import Path
 
@@ -61,34 +62,6 @@ def initialize_traceloop():
     print("✓ Traceloop SDK initialized with: "+ os.environ.get('OTEL_OTLP_ENDPOINT', 'http://localhost:4318'))
     
 # ------------------------------------------------------------------------------
-# Configure OpenTelemetry for guardrails
-# ------------------------------------------------------------------------------
-
-#@st.cache_resource(show_spinner="Initializing OpenTelemetry...")
-#def initialize_opentelemetry():
-#    """Initialize OpenTelemetry once (cached to prevent re-initialization on every Streamlit rerun)."""
-
-#     print("✓ Initializing OpenTelemetry TracerProvider...")
-#     # these spans will be connected within the Traceloop spans
-#     # https://docs.nvidia.com/nemo/guardrails/latest/user-guides/tracing/opentelemetry-integration.html
-    
-#     resource = Resource.create({"service.name": SERVICE_NAME})
-#     tracer_provider = TracerProvider(resource=resource)
-    
-#     # use this option for a quick export to console, but need to comment out otlp_exporter below
-#     #console_exporter = ConsoleSpanExporter()
-#     #tracer_provider.add_span_processor(BatchSpanProcessor(console_exporter))
-    
-#     # use this for exporting to Otlp endpoint
-#     otlp_exporter_endpoint = os.environ.get('OTEL_OTLP_ENDPOINT', 'http://localhost:4318')
-#     otlp_exporter = OTLPSpanExporter(endpoint=otlp_exporter_endpoint, insecure=True)
-#     tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
-#     trace.set_tracer_provider(tracer_provider)
-#     print("✓ OpenTelemetry TracerProvider initialized")
-#     print(f"   otlp exporter endpoint : {otlp_exporter_endpoint or 'Not set'}")
-#     print(f"   service name           : {SERVICE_NAME}")
-
-# ------------------------------------------------------------------------------
 # Suppress verbose NAT agent logging and warnings
 # ------------------------------------------------------------------------------
 @st.cache_resource(show_spinner="Configuring logging...")
@@ -101,6 +74,33 @@ def configure_logging():
     logging.getLogger("nemoguardrails.actions.action_dispatcher").setLevel(logging.ERROR)
     warnings.filterwarnings("ignore")
     return True
+
+# ------------------------------------------------------------------------------
+# Config file validation
+# ------------------------------------------------------------------------------
+@st.cache_resource(show_spinner="Config file validation...")
+def ensure_config_files_exist():
+    """Verify required config files exist before app starts."""
+    print("✓ Ensuring required config files exist...")
+
+    # Construct config file paths
+    guardrails_config_path = Path("guardrails_config/config.yml")
+    nat_config_path = Path("src/nat_simple_web_query/configs/config.yml")
+    
+    # Ensure both config files exist
+    missing_files = []
+    for config_path in [guardrails_config_path, nat_config_path]:
+        if not config_path.exists():
+            missing_files.append(str(config_path))
+    
+    if missing_files:
+        print(f"❌ Error: The following config files were not found:")
+        for file in missing_files:
+            print(f"   - {file}")
+        print(f"   Please run 'python update_config.py <config_type>' to generate config files.")
+        os._exit(1)  # Force immediate exit without cleanup
+    
+    print("✓ All required config files found")
 
 # ------------------------------------------------------------------------------
 # guardrail functions
@@ -302,64 +302,67 @@ async def process_query(user_input, user_option_guardrail, rails, nat_config_pat
 # streamlit Setup
 # ------------------------------------------------------------------------------
 
-# Page configuration
-st.set_page_config(
-    page_title="NVIDIA Agent Toolkit with Guardrails with Dynatrace Observability",
-    page_icon="🤖",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
-# Custom CSS for better styling
-st.markdown("""
-    <style>
-    .main-header {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #76B900;
-        text-align: center;
-        margin-bottom: 1rem;
-    }
-    .sub-header {
-        font-size: 1.4rem;
-        color: #666;
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-    .status-box {
-        padding: 1rem;
-        border-radius: 0.5rem;
-        margin: 1rem 0;
-    }
-    .success-box {
-        background-color: #d4edda;
-        border-left: 4px solid #28a745;
-    }
-    .warning-box {
-        background-color: #fff3cd;
-        border-left: 4px solid #ffc107;
-    }
-    .error-box {
-        background-color: #f8d7da;
-        border-left: 4px solid #dc3545;
-    }
-    .info-box {
-        background-color: #d1ecf1;
-        border-left: 4px solid #17a2b8;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
 def main():
     """Main Streamlit application."""
+    # Verify config files exist first (will exit if missing)
+    ensure_config_files_exist()
+    
     # Initialize components will caching to prevent re-initialization on every rerun
     initialize_traceloop()
-    #initialize_opentelemetry()
     configure_logging()
     rails = initialize_guardrails() 
+
+    # Page configuration (must be first Streamlit command)
+    st.set_page_config(
+        page_title="NVIDIA Agent Toolkit with Guardrails with Dynatrace Observability",
+        page_icon="🤖",
+        layout="wide",
+        initial_sidebar_state="expanded"
+    )
+
+    # Custom CSS for better styling
+    st.markdown("""
+        <style>
+        .main-header {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #76B900;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .sub-header {
+            font-size: 1.4rem;
+            color: #666;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .status-box {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+        .success-box {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+        .warning-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+        .error-box {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+        .info-box {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
     # Header
     st.markdown('<div class="main-header">Operationalizing AI at Scale</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-header">NVIDIA NeMo Guardrails and Dynatrace Insights</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-header">NVIDIA NeMo Agent Toolkit, NeMo Guardrails and Dynatrace Insights</div>', unsafe_allow_html=True)
     st.markdown('<div style="text-align: center;"><img src="app/static/dt-nvidia.png" alt="Dynatrace and NVIDIA" width="300" style="margin: auto; display: block;"></div>', unsafe_allow_html=True)
 
     # Main content area
