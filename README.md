@@ -6,7 +6,7 @@ With Dynatrace monitoring, you'll track real-time performance and cost, follow e
 
 ## Setup
 
-<img alt="Workshop setup" src="static/workshop-setup.png" width="75%">
+<img alt="Workshop setup" src="static/selfguided-setup.png" width="75%">
 
 ## 🔧 Start GitHub Codespace
 
