@@ -13,8 +13,6 @@
   },
   // Use 'postAttachCommand' to set env variables
   "postAttachCommand": "source .devcontainer/post-create.sh",
-  // Auto-shutdown after 3 hours
-  "postCreateCommand": "nohup bash -c 'sleep 300 && echo \"Auto-shutdown after 3 hours\" && kill 1' > /tmp/auto-shutdown.log 2>&1 &",
   // // Add recommended secrets
   "secrets": {
     "WORKSHOP_PASSWORD": {

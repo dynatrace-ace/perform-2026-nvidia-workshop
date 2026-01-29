@@ -12,7 +12,7 @@ if [ -z "$WORKSHOP_PASSWORD" ] || [ "$WORKSHOP_PASSWORD" = "null" ]; then
   echo ""
   echo "Error ***************************************************************"
   echo "Error ***************************************************************"
-  exit 1
+  return 1
 fi
 
 export DT_BASE_URL=$(curl -s -X POST $HOST_BASE_URL/dynatrace-url \
@@ -64,7 +64,7 @@ if [ -z "$DT_BASE_URL" ] || [ "$DT_BASE_URL" = "null" ]; then
   echo ""
   echo "Error ***************************************************************"
   echo "Error ***************************************************************"
-  exit 1
+  return 1
 fi
 if [ -z "$NVIDIA_MODEL_ENDPOINT_8001" ] || [ "$NVIDIA_MODEL_ENDPOINT_8001" = "null" ]; then
   echo "Error ***************************************************************"
@@ -74,7 +74,7 @@ if [ -z "$NVIDIA_MODEL_ENDPOINT_8001" ] || [ "$NVIDIA_MODEL_ENDPOINT_8001" = "nu
   echo ""
   echo "Error ***************************************************************"
   echo "Error ***************************************************************"
-  exit 1
+  return 1
 fi
 
 echo "Saving environment settings..."
@@ -106,8 +106,15 @@ export UV_HTTP_TIMEOUT=300
 # Suppress UV hardlink warning for cross-filesystem operations
 export UV_LINK_MODE=copy
 if ! uv pip install -r requirements.txt; then
-  echo "Error: Failed to install Python dependencies. Please check requirements.txt and try again."
-  exit 1
+  echo "Error ***************************************************************"
+  echo "Error ***************************************************************"
+  echo ""
+  echo "Error: Failed to install Python dependencies. "
+  echo "Please check requirements.txt and try again."
+  echo ""
+  echo "Error ***************************************************************"
+  echo "Error ***************************************************************"
+  return 1
 fi
 
 echo "Codespace setup complete."
