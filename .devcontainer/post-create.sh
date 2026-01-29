@@ -4,7 +4,14 @@ echo "Getting the workshop environment settings..."
 
 # Verify that environment variables were retrieved successfully
 if [ -z "$WORKSHOP_PASSWORD" ] || [ "$WORKSHOP_PASSWORD" = "null" ]; then
-  echo "Error: WORKSHOP_PASSWORD is not set or is null. Please check your WORKSHOP_PASSWORD and try again."
+  echo "Error ***************************************************************"
+  echo "Error ***************************************************************"
+  echo ""
+  echo "Error: WORKSHOP_PASSWORD is not set or is null."
+  echo "Please check your WORKSHOP_PASSWORD and try again."
+  echo ""
+  echo "Error ***************************************************************"
+  echo "Error ***************************************************************"
   exit 1
 fi
 
@@ -49,11 +56,24 @@ echo "NVIDIA_MODEL_ENDPOINT_8001=$NVIDIA_MODEL_ENDPOINT_8001"
 
 # Verify that environment variables were retrieved successfully
 if [ -z "$DT_BASE_URL" ] || [ "$DT_BASE_URL" = "null" ]; then
-  echo "Error: Failed to retrieve DT_BASE_URL. Please check your WORKSHOP_PASSWORD and try again."
+  echo "Error ***************************************************************"
+  echo "Error ***************************************************************"
+  echo ""
+  echo "Error: Failed to retrieve DT_BASE_URL. "
+  echo "Please check your WORKSHOP_PASSWORD and try again."
+  echo ""
+  echo "Error ***************************************************************"
+  echo "Error ***************************************************************"
   exit 1
 fi
 if [ -z "$NVIDIA_MODEL_ENDPOINT_8001" ] || [ "$NVIDIA_MODEL_ENDPOINT_8001" = "null" ]; then
+  echo "Error ***************************************************************"
+  echo "Error ***************************************************************"
+  echo ""
   echo "Error: Failed to retrieve NVIDIA_MODEL_ENDPOINT_8001. Please check your WORKSHOP_PASSWORD and try again."
+  echo ""
+  echo "Error ***************************************************************"
+  echo "Error ***************************************************************"
   exit 1
 fi
 

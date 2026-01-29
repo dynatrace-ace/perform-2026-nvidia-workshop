@@ -1,5 +1,8 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/python
+// Note: If you're using GitHub Codespaces, you can also configure the idle timeout 
+// in your GitHub settings (Settings → Codespaces → Default idle timeout), which is the recommended approach for Codespaces.
+
 {
   "name": "Python 3",
   // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
@@ -10,6 +13,8 @@
   },
   // Use 'postAttachCommand' to set env variables
   "postAttachCommand": "source .devcontainer/post-create.sh",
+  // Auto-shutdown after 3 hours
+  "postCreateCommand": "nohup bash -c 'sleep 300 && echo \"Auto-shutdown after 3 hours\" && kill 1' > /tmp/auto-shutdown.log 2>&1 &",
   // // Add recommended secrets
   "secrets": {
     "WORKSHOP_PASSWORD": {
