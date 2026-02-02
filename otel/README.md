@@ -2,16 +2,13 @@
 
 This guide shows how to configure an OpenTelemetry Collector to export traces, metrics and logs to Dynatrace.
 
-Note that there are three configuration files provided for various ways to run the Otel Collector:
-1. `config.yaml` - OTLP receiver only
-1. `config-dcgm.yaml` - OTLP receiver plus Prometheus metric scraping for the DCGM exporter
-1. `config-dcgm-nim.yaml` - OTLP receiver plus Prometheus metric scraping for the DCGM exporter and NIM Services
+The `config.yaml` is configured to as a OTLP receiver only and Docker or Podman is used to start the [Dynatrace distribution of the OpenTelemetry Collector OpenTelemetry Collector](https://docs.dynatrace.com/docs/ingest-from/opentelemetry/collector) with a specified configuration file.
 
-Use provided scripts to start and stop Otel Collector container using `config-dcgm-nim.yaml`
+## Prerequisites
 
-Use the docker command commands for the starting the Otel Collector with other options.s
+### Dynatrace
 
-# Prerequisites - Dynatrace
+This is required for all configuration options.
 
 1. If not done already, then make a Dynatrace API Token with the required scopes for the OTLP API:
 
@@ -21,7 +18,7 @@ Use the docker command commands for the starting the Otel Collector with other o
 
 1. If not done already, Clone this repo
 
-1. make an environment file using the provided template
+1. Make an environment file using the provided environment variable template:
 
     ```bash
     cd otel
@@ -30,7 +27,38 @@ Use the docker command commands for the starting the Otel Collector with other o
     
 1. adjust `.env` with your Dynatrace environment `DT_BASE_URL` and `DT_API_TOKEN`
 
-# Prerequisites (Optional) - only if using the metric scraping for the DCGM exporter
+## Start and stop Otel Collector container
+
+Provided scripts, assume using Docker.
+
+### Start the Otel Collector
+
+Run this shell script to start the container using Docker command.  Adjust as required to podman.
+
+```bash
+source .env
+./start-otel.sh
+```
+
+### Stop the Otel Collector
+
+Run this shell script to stop the container user Docker
+
+```bash
+./stop-otel.sh
+```
+
+# Other use cases
+
+There are two other configuration files provided for various ways to run the Otel Collector:
+* Config Option 1 - OTLP receiver plus Prometheus metric scraping from a locally run DCGM exporter. Uses `config-dcgm.yaml`
+* Config Option 2 - OTLP receiver plus Prometheus metric scraping from a locally run DCGM exporter and locally run NIM Services. Uses `config-dcgm-nim.yaml`
+
+## Prerequisites
+
+### Prerequisites metric scraping for the DCGM exporter
+
+Used in Config Option 1 and 2.
 
 1. Get the DCGM HOST IP and PORT
 
@@ -44,11 +72,13 @@ Use the docker command commands for the starting the Otel Collector with other o
 
 1. Update `.env` with your `DCGM_HOST` IP and `DCGM_PORT` 
 
-# Prerequisites - metric scraping for NIM services
+### Prerequisites metric scraping for NIM services
+
+Used in Config Option 2. 
 
 This setup assumes there are three NIM services to scrap metrics from.  The `NIM_HOST` is the host that the Otel Collector container is running on and needs to be provided.
 
-1. Get the host IP where containers are run.  This example is from unix
+1. Get the host IP where containers are run.  This example is from unix:
 
      ```bash
     hostname -I | awk '{print $1}'
@@ -56,29 +86,18 @@ This setup assumes there are three NIM services to scrap metrics from.  The `NIM
 
 1. Update `.env` with your `NIM_HOST` 
 
-# Start and stop Otel Collector container
+## Start and stop Otel Collector container
 
-Provided scripts, assume using Docker.
+Provided scripts, assume using Docker. Adjust as required to podman.
 
-### Start the Otel Collector
-
-Run this shell script to start the container using Docker. Optionally specify a configuration file.
-
-**Option 1 - OTLP receiver only (defaults to use config.yaml):**
-
-```bash
-source .env
-./start-otel.sh
-```
-
-**Option 2 - OTLP receiver plus Prometheus metric scraping for DCGM exporter:**
+### Start Config Option 1 - metric scraping for the DCGM
 
 ```bash
 source .env
 ./start-otel.sh config-dcgm.yaml
 ```
 
-**Option 3 - OTLP receiver plus Prometheus metric scraping for DCGM exporter and NIM Services:**
+### Start Config Option 2 - metric scraping for the DCGM and NIM services
 
 ```bash
 source .env
