@@ -1,4 +1,17 @@
-HOST_BASE_URL=http://107.21.127.218:3800
+# Adjust as required for workshop environment
+WORKSHOP_URL=
+
+# Verify that environment variables were retrieved successfully
+if [ -z "$WORKSHOP_URL" ] || [ "$WORKSHOP_URL" = "null" ]; then
+  echo "Error ***************************************************************"
+  echo "Error ***************************************************************"
+  echo ""
+  echo "Error: Missing WORKSHOP_URL environment variable."
+  echo ""
+  echo "Error ***************************************************************"
+  echo "Error ***************************************************************"
+  return 1
+fi
 
 echo "Getting the workshop environment settings..."
 
@@ -15,39 +28,39 @@ if [ -z "$WORKSHOP_PASSWORD" ] || [ "$WORKSHOP_PASSWORD" = "null" ]; then
   return 1
 fi
 
-export DT_BASE_URL=$(curl -s -X POST $HOST_BASE_URL/dynatrace-url \
+export DT_BASE_URL=$(curl -s -X POST $WORKSHOP_URL/dynatrace-url \
   -H "Content-Type: application/json" \
   -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.dynatrace_url')
 
-export DT_API_TOKEN=$(curl -s -X POST $HOST_BASE_URL/dynatrace-token \
+export DT_API_TOKEN=$(curl -s -X POST $WORKSHOP_URL/dynatrace-token \
   -H "Content-Type: application/json" \
   -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.dynatrace_api_token')
 
-export NVIDIA_API_KEY=$(curl -s -X POST $HOST_BASE_URL/nvidia-key \
+export NVIDIA_API_KEY=$(curl -s -X POST $WORKSHOP_URL/nvidia-key \
   -H "Content-Type: application/json" \
   -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.nvidia_api_key')
 
-export TAVILY_API_KEY=$(curl -s -X POST $HOST_BASE_URL/tavily-key \
+export TAVILY_API_KEY=$(curl -s -X POST $WORKSHOP_URL/tavily-key \
   -H "Content-Type: application/json" \
   -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.tavily_api_key')
 
-export OTEL_OTLP_ENDPOINT=$(curl -s -X POST $HOST_BASE_URL/otel-endpoint \
+export OTEL_OTLP_ENDPOINT=$(curl -s -X POST $WORKSHOP_URL/otel-endpoint \
   -H "Content-Type: application/json" \
   -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.otel_otlp_endpoint')
 
-export NVIDIA_MODEL_ENDPOINT_8001=$(curl -s -X POST $HOST_BASE_URL/nvidia-model-endpoint-8001 \
+export NVIDIA_MODEL_ENDPOINT_8001=$(curl -s -X POST $WORKSHOP_URL/nvidia-model-endpoint-8001 \
   -H "Content-Type: application/json" \
   -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.nvidia_model_endpoint_8001')
 
-export NVIDIA_MODEL_ENDPOINT_8002=$(curl -s -X POST $HOST_BASE_URL/nvidia-model-endpoint-8002 \
+export NVIDIA_MODEL_ENDPOINT_8002=$(curl -s -X POST $WORKSHOP_URL/nvidia-model-endpoint-8002 \
   -H "Content-Type: application/json" \
   -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.nvidia_model_endpoint_8002')
 
-export NVIDIA_MODEL_ENDPOINT_8003=$(curl -s -X POST $HOST_BASE_URL/nvidia-model-endpoint-8003 \
+export NVIDIA_MODEL_ENDPOINT_8003=$(curl -s -X POST $WORKSHOP_URL/nvidia-model-endpoint-8003 \
   -H "Content-Type: application/json" \
   -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.nvidia_model_endpoint_8003')
 
-export NVIDIA_MODEL_ENDPOINT_8004=$(curl -s -X POST $HOST_BASE_URL/nvidia-model-endpoint-8004 \
+export NVIDIA_MODEL_ENDPOINT_8004=$(curl -s -X POST $WORKSHOP_URL/nvidia-model-endpoint-8004 \
   -H "Content-Type: application/json" \
   -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.nvidia_model_endpoint_8004')
 
