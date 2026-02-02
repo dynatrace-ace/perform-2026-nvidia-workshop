@@ -1,6 +1,8 @@
 # Overview
 
-This guide shows how to start the NIM services used by the sample app.  Provided scripts, assuming using bash scripts and Docker.
+This guide shows how to start the NIM services used by the sample app.  This guide only to be followed when running local NIM services and not `build.nvidia.com` APIs.
+
+Provided scripts, assuming using bash scripts and Docker.
 
 # Prerequisites - Environment Variables file
 
