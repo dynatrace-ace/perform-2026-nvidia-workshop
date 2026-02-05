@@ -1,3 +1,12 @@
+## 📚 Reference
+
+- [Dynatrace AI and LLM Observability](https://www.dynatrace.com/solutions/ai-observability/)
+- [NVIDIA NeMo Agent Toolkit](https://docs.nvidia.com/nemo/agent-toolkit/)
+- [NeMo Guardrails](https://github.com/NVIDIA/NeMo-Guardrails)
+- [NeMo Guardrails Documentation](https://docs.nvidia.com/nemo/guardrails/latest/index.html)
+- [NVIDIA NIM](https://www.nvidia.com/en-us/ai/)
+- [NVIDIA AI Endpoints](https://build.nvidia.com)
+
 ## 📁 Repository Structure
 
 ```
