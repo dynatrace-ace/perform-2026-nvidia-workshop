@@ -1,113 +1,176 @@
-# Adjust as required for workshop environment
+# Adjust to build, brev or local
+if [ -z "$APP_MODE" ] || [ "$APP_MODE" = "null" ]; then
+  export APP_MODE=build
+fi
+# Validate APP_MODE is one of the allowed values
+if [ "$APP_MODE" != "local" ] && [ "$APP_MODE" != "brev" ] && [ "$APP_MODE" != "build" ]; then
+  echo "Error ***************************************************************"
+  echo "Error ***************************************************************"
+  echo ""
+  echo "Error: APP_MODE must be 'local', 'brev', or 'build'."
+  echo "Current value: $APP_MODE"
+  echo ""
+  echo "Error ***************************************************************"
+  echo "Error ***************************************************************"
+  return 1
+fi
+echo "APP_MODE is set to: $APP_MODE"
+
+##############################################################################
+# Setup Environment Variables
+##############################################################################
+
+# Adjust as required for using server to workshop environment variables.  
+# Leave blank if not running a workshop
 WORKSHOP_URL=
+if [ "$WORKSHOP_URL" ] ; then
+  echo "Getting the workshop environment settings..."
 
-# Verify that environment variables were retrieved successfully
-if [ -z "$WORKSHOP_URL" ] || [ "$WORKSHOP_URL" = "null" ]; then
-  echo "Error ***************************************************************"
-  echo "Error ***************************************************************"
-  echo ""
-  echo "Error: Missing WORKSHOP_URL environment variable."
-  echo ""
-  echo "Error ***************************************************************"
-  echo "Error ***************************************************************"
-  return 1
+  # Verify that environment variables were retrieved successfully
+  if [ -z "$WORKSHOP_PASSWORD" ] || [ "$WORKSHOP_PASSWORD" = "null" ]; then
+    echo "Error ***************************************************************"
+    echo "Error ***************************************************************"
+    echo ""
+    echo "Error: WORKSHOP_PASSWORD is not set or is null."
+    echo "Please check your WORKSHOP_PASSWORD and try again."
+    echo ""
+    echo "Error ***************************************************************"
+    echo "Error ***************************************************************"
+    return 1
+  fi
+  echo "You entered a WORKSHOP_PASSWORD of: ${WORKSHOP_PASSWORD}"
+
+  export DT_BASE_URL=$(curl -s -X POST $WORKSHOP_URL/dynatrace-url \
+    -H "Content-Type: application/json" \
+    -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.dynatrace_url')
+
+  export DT_API_TOKEN=$(curl -s -X POST $WORKSHOP_URL/dynatrace-token \
+    -H "Content-Type: application/json" \
+    -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.dynatrace_api_token')
+
+  export NVIDIA_API_KEY=$(curl -s -X POST $WORKSHOP_URL/nvidia-key \
+    -H "Content-Type: application/json" \
+    -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.nvidia_api_key')
+
+  export TAVILY_API_KEY=$(curl -s -X POST $WORKSHOP_URL/tavily-key \
+    -H "Content-Type: application/json" \
+    -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.tavily_api_key')
+
+  export OTEL_OTLP_ENDPOINT=$(curl -s -X POST $WORKSHOP_URL/otel-endpoint \
+    -H "Content-Type: application/json" \
+    -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.otel_otlp_endpoint')
+
+  export NVIDIA_MODEL_ENDPOINT_8001=$(curl -s -X POST $WORKSHOP_URL/nvidia-model-endpoint-8001 \
+    -H "Content-Type: application/json" \
+    -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.nvidia_model_endpoint_8001')
+
+  export NVIDIA_MODEL_ENDPOINT_8002=$(curl -s -X POST $WORKSHOP_URL/nvidia-model-endpoint-8002 \
+    -H "Content-Type: application/json" \
+    -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.nvidia_model_endpoint_8002')
+
+  export NVIDIA_MODEL_ENDPOINT_8003=$(curl -s -X POST $WORKSHOP_URL/nvidia-model-endpoint-8003 \
+    -H "Content-Type: application/json" \
+    -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.nvidia_model_endpoint_8003')
+
+  export NVIDIA_MODEL_ENDPOINT_8004=$(curl -s -X POST $WORKSHOP_URL/nvidia-model-endpoint-8004 \
+    -H "Content-Type: application/json" \
+    -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.nvidia_model_endpoint_8004')
 fi
 
-echo "Getting the workshop environment settings..."
+# get the NVIDIA model endpoints if in brev or local mode
+if [ "$APP_MODE" = "brev" ] || [ "$APP_MODE" = "local" ]  ; then
+  echo "Setting NVIDIA_MODEL_ENDPOINTs for $APP_MODE mode..."
 
-# Verify that environment variables were retrieved successfully
-if [ -z "$WORKSHOP_PASSWORD" ] || [ "$WORKSHOP_PASSWORD" = "null" ]; then
-  echo "Error ***************************************************************"
-  echo "Error ***************************************************************"
-  echo ""
-  echo "Error: WORKSHOP_PASSWORD is not set or is null."
-  echo "Please check your WORKSHOP_PASSWORD and try again."
-  echo ""
-  echo "Error ***************************************************************"
-  echo "Error ***************************************************************"
-  return 1
+  if [ -z "$NVIDIA_MODEL_ENDPOINT_8001" ] || [ "$NVIDIA_MODEL_ENDPOINT_8001" = "null" ]; then
+    echo "Error ***************************************************************"
+    echo "Error ***************************************************************"
+    echo ""
+    echo "Error: Failed to retrieve NVIDIA_MODEL_ENDPOINT_8001."
+    echo ""
+    echo "Error ***************************************************************"
+    echo "Error ***************************************************************"
+    return 1
+  fi
+  echo "NVIDIA_MODEL_ENDPOINT_8001=$NVIDIA_MODEL_ENDPOINT_8001"
+  echo "NVIDIA_MODEL_ENDPOINT_8002=$NVIDIA_MODEL_ENDPOINT_8002"
+  echo "NVIDIA_MODEL_ENDPOINT_8003=$NVIDIA_MODEL_ENDPOINT_8003"
+  echo "NVIDIA_MODEL_ENDPOINT_8004=$NVIDIA_MODEL_ENDPOINT_8004"
+  echo "export NVIDIA_MODEL_ENDPOINT_8001=\"$NVIDIA_MODEL_ENDPOINT_8001\"" >> ~/.bashrc
+  echo "export NVIDIA_MODEL_ENDPOINT_8002=\"$NVIDIA_MODEL_ENDPOINT_8002\"" >> ~/.bashrc
+  echo "export NVIDIA_MODEL_ENDPOINT_8003=\"$NVIDIA_MODEL_ENDPOINT_8003\"" >> ~/.bashrc
+  echo "export NVIDIA_MODEL_ENDPOINT_8004=\"$NVIDIA_MODEL_ENDPOINT_8004\"" >> ~/.bashrc
 fi
 
-export DT_BASE_URL=$(curl -s -X POST $WORKSHOP_URL/dynatrace-url \
-  -H "Content-Type: application/json" \
-  -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.dynatrace_url')
+# get using the NVIDIA Build APIs, then get the API key
+if [ "$APP_MODE" = "build" ] ; then
+  echo "Setting NVIDIA_API_KEY"
+  if [ -z "$NVIDIA_API_KEY" ] || [ "$NVIDIA_API_KEY" = "null" ]; then
+    echo "Error ***************************************************************"
+    echo "Error ***************************************************************"
+    echo ""
+    echo "Error: Failed to retrieve NVIDIA_API_KEY. "
+    echo ""
+    echo "Error ***************************************************************"
+    echo "Error ***************************************************************"
+    return 1
+  fi
+  echo "export NVIDIA_API_KEY=\"$NVIDIA_API_KEY\"" >> ~/.bashrc
+fi
 
-export DT_API_TOKEN=$(curl -s -X POST $WORKSHOP_URL/dynatrace-token \
-  -H "Content-Type: application/json" \
-  -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.dynatrace_api_token')
-
-export NVIDIA_API_KEY=$(curl -s -X POST $WORKSHOP_URL/nvidia-key \
-  -H "Content-Type: application/json" \
-  -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.nvidia_api_key')
-
-export TAVILY_API_KEY=$(curl -s -X POST $WORKSHOP_URL/tavily-key \
-  -H "Content-Type: application/json" \
-  -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.tavily_api_key')
-
-export OTEL_OTLP_ENDPOINT=$(curl -s -X POST $WORKSHOP_URL/otel-endpoint \
-  -H "Content-Type: application/json" \
-  -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.otel_otlp_endpoint')
-
-export NVIDIA_MODEL_ENDPOINT_8001=$(curl -s -X POST $WORKSHOP_URL/nvidia-model-endpoint-8001 \
-  -H "Content-Type: application/json" \
-  -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.nvidia_model_endpoint_8001')
-
-export NVIDIA_MODEL_ENDPOINT_8002=$(curl -s -X POST $WORKSHOP_URL/nvidia-model-endpoint-8002 \
-  -H "Content-Type: application/json" \
-  -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.nvidia_model_endpoint_8002')
-
-export NVIDIA_MODEL_ENDPOINT_8003=$(curl -s -X POST $WORKSHOP_URL/nvidia-model-endpoint-8003 \
-  -H "Content-Type: application/json" \
-  -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.nvidia_model_endpoint_8003')
-
-export NVIDIA_MODEL_ENDPOINT_8004=$(curl -s -X POST $WORKSHOP_URL/nvidia-model-endpoint-8004 \
-  -H "Content-Type: application/json" \
-  -d "{\"password\": \"$WORKSHOP_PASSWORD\"}" | jq -r '.nvidia_model_endpoint_8004')
-
-echo "DT_BASE_URL=$DT_BASE_URL"
-echo "NVIDIA_MODEL_ENDPOINT_8001=$NVIDIA_MODEL_ENDPOINT_8001"
-
-# Verify that environment variables were retrieved successfully
+echo "Setting Dynatrace DT_BASE_URL=$DT_BASE_URL"
 if [ -z "$DT_BASE_URL" ] || [ "$DT_BASE_URL" = "null" ]; then
   echo "Error ***************************************************************"
   echo "Error ***************************************************************"
   echo ""
   echo "Error: Failed to retrieve DT_BASE_URL. "
-  echo "Please check your WORKSHOP_PASSWORD and try again."
-  echo "You entered a WORKSHOP_PASSWORD of: ${WORKSHOP_PASSWORD}"
   echo ""
   echo "Error ***************************************************************"
   echo "Error ***************************************************************"
   return 1
 fi
-if [ -z "$NVIDIA_MODEL_ENDPOINT_8001" ] || [ "$NVIDIA_MODEL_ENDPOINT_8001" = "null" ]; then
+if [ -z "$DT_API_TOKEN" ] || [ "$DT_API_TOKEN" = "null" ]; then
   echo "Error ***************************************************************"
   echo "Error ***************************************************************"
   echo ""
-  echo "Error: Failed to retrieve NVIDIA_MODEL_ENDPOINT_8001. Please check your WORKSHOP_PASSWORD and try again."
-  echo "You entered a WORKSHOP_PASSWORD of: ${WORKSHOP_PASSWORD}"
+  echo "Error: Failed to retrieve DT_API_TOKEN. "
   echo ""
   echo "Error ***************************************************************"
   echo "Error ***************************************************************"
   return 1
 fi
-
-echo "Saving environment settings..."
 echo "export DT_BASE_URL=\"$DT_BASE_URL\"" >> ~/.bashrc
 echo "export DT_API_TOKEN=\"$DT_API_TOKEN\"" >> ~/.bashrc
-echo "export NVIDIA_API_KEY=\"$NVIDIA_API_KEY\"" >> ~/.bashrc
-echo "export TAVILY_API_KEY=\"$TAVILY_API_KEY\"" >> ~/.bashrc
-echo "export OTEL_OTLP_ENDPOINT=\"$OTEL_OTLP_ENDPOINT\"" >> ~/.bashrc
-echo "export NVIDIA_MODEL_ENDPOINT_8001=\"$NVIDIA_MODEL_ENDPOINT_8001\"" >> ~/.bashrc
-echo "export NVIDIA_MODEL_ENDPOINT_8002=\"$NVIDIA_MODEL_ENDPOINT_8002\"" >> ~/.bashrc
-echo "export NVIDIA_MODEL_ENDPOINT_8003=\"$NVIDIA_MODEL_ENDPOINT_8003\"" >> ~/.bashrc
-echo "export NVIDIA_MODEL_ENDPOINT_8004=\"$NVIDIA_MODEL_ENDPOINT_8004\"" >> ~/.bashrc
 
+echo "Setting TAVILY_API_KEY"
+if [ -z "$TAVILY_API_KEY" ] || [ "$TAVILY_API_KEY" = "null" ]; then
+  echo "Error ***************************************************************"
+  echo "Error ***************************************************************"
+  echo ""
+  echo "Error: Failed to retrieve TAVILY_API_KEY. "
+  echo ""
+  echo "Error ***************************************************************"
+  echo "Error ***************************************************************"
+  return 1
+fi
+echo "export TAVILY_API_KEY=\"$TAVILY_API_KEY\"" >> ~/.bashrc
+
+if [ -z "$OTEL_OTLP_ENDPOINT" ] || [ "$OTEL_OTLP_ENDPOINT" = "null" ]; then
+  export OTEL_OTLP_ENDPOINT="http://localhost:4318"
+fi
+echo "Setting OTEL_OTLP_ENDPOINT=$OTEL_OTLP_ENDPOINT"
+echo "export OTEL_OTLP_ENDPOINT=\"$OTEL_OTLP_ENDPOINT\"" >> ~/.bashrc
+
+##############################################################################
+# Start Otel Collector
+##############################################################################
 echo "Starting up Otel Collector..."
 cd /workspaces/perform-2026-nvidia-workshop/otel
 ./start-otel.sh
 cd /workspaces/perform-2026-nvidia-workshop
 
+##############################################################################
+# Setup Python Environment
+##############################################################################
 echo "Setting up Python environment..."
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
@@ -132,11 +195,16 @@ if ! uv pip install -r requirements.txt; then
   return 1
 fi
 
+echo "Updating configuration files..."
+python update_config.py build
+
+echo ""
 echo "Codespace setup complete."
 echo "Dynatrace API URL is: $DT_BASE_URL"
 
-echo "Updating configuration files..."
-python update_config.py build
+##############################################################################
+# Start Application
+##############################################################################
 
 echo "Launching Streamlit application..."
 streamlit run app.py

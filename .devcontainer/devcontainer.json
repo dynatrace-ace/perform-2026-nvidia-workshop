@@ -13,10 +13,19 @@
   },
   // Use 'postAttachCommand' to set env variables
   "postAttachCommand": "source .devcontainer/post-create.sh",
-  // // Add recommended secrets
+  // Add recommended secrets
   "secrets": {
-    "WORKSHOP_PASSWORD": {
-      "description": "Enter the workshop password provided by the instructor"
+    "NVIDIA_API_KEY": {
+      "description": "Enter your NVIDIA API Key"
+    },
+    "TAVILY_API_KEY": {
+      "description": "Enter your Tavily API Key"
+    },
+    "DT_BASE_URL": {
+      "description": "Enter your Dynatrace Environment API Base URL (e.g., https://abc12345.live.dynatrace.com)"
+    },
+    "DT_API_TOKEN": {
+      "description": "Enter your Dynatrace API Token with appropriate permissions"
     }
   },
   "forwardPorts": [
@@ -26,3 +35,10 @@
     "cpus": 4
   }
 }
+
+// for workshop then just use this snippet to add secrets
+//  "secrets": {
+//    "WORKSHOP_PASSWORD": {
+//      "description": "Enter the workshop password provided by the instructor"
+//    }
+//  },
