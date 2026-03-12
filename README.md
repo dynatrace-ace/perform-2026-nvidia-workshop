@@ -24,10 +24,11 @@ See [CONFIG.md](CONFIG.md) for more details.
 
 This repo and related guides assume Mac OS/Linux, but you can adapt as required for Windows.
 
-1. NVIDIA Build Account on [build.nvidia.com](https://build.nvidia.com)
-1. Tavily Developer Account on [tavily.com](https://www.tavily.com)
+1. NVIDIA Build Account. Signup on [build.nvidia.com](https://build.nvidia.com)
+1. NVIDIA API Key.  Generate on n [build.nvidia.com](https://build.nvidia.com/explore/discover)
+1. Tavily Developer Account. Signup on [tavily.com](https://www.tavily.com)
 1. Dynatrace Tenant. For a Trial, visit [Dynatrace signup page](https://www.dynatrace.com/signup/)
-1. [Dynatrace API Token](https://docs.dynatrace.com/docs/dynatrace-api/basics/dynatrace-api-authentication#create-token) with the required scopes for the OTLP Ingest API:
+1. Dynatrace API Token with the required scopes for the OTLP Ingest API below. Refer to [Help docs](https://docs.dynatrace.com/docs/dynatrace-api/basics/dynatrace-api-authentication#create-token)
     * `openTelemetryTrace.ingest`
     * `metrics.ingest`
     * `logs.ingest`

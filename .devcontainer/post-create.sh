@@ -170,6 +170,8 @@ cd /workspaces/perform-2026-nvidia-workshop
 
 ##############################################################################
 # Setup Python Environment
+# https://docs.astral.sh/uv/getting-started/installation/
+# https://docs.astral.sh/uv/pip/environments/
 ##############################################################################
 echo "Setting up Python environment..."
 curl -LsSf https://astral.sh/uv/install.sh | sh
