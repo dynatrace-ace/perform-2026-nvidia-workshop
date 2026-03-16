@@ -68,3 +68,4 @@ pip-delete-this-directory.txt
 .env
 bak/
 config.yml
+run_prompts.log
