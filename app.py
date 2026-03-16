@@ -11,6 +11,25 @@ import sys
 import time
 from pathlib import Path
 
+# ------------------------------------------------------------------------------
+# Logging – output to both console and app.log
+# ------------------------------------------------------------------------------
+_LOG_FILE = Path(__file__).parent / "app.log"
+
+# Truncate log file once at process start (not on Streamlit reruns)
+if "APP_LOG_INITIALIZED" not in os.environ:
+    _LOG_FILE.write_text("", encoding="utf-8")
+    os.environ["APP_LOG_INITIALIZED"] = "1"
+
+
+def log(msg: str = ""):
+    """Log a message to both console and app.log."""
+    ts = time.strftime("%Y-%m-%d %H:%M:%S")
+    line = f"{ts}  {msg}"
+    print(line, flush=True)
+    with open(_LOG_FILE, "a", encoding="utf-8") as f:
+        f.write(line + "\n")
+
 # Suppress Pydantic warnings BEFORE importing libraries that use Pydantic
 warnings.filterwarnings("ignore", message=".*validate_default.*", module="pydantic")
 
@@ -52,14 +71,14 @@ os.environ['OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE'] = "delta"
 def initialize_traceloop():
     """Initialize Traceloop once (cached to prevent re-initialization on every Streamlit rerun)."""
 
-    print("✓ Initializing Traceloop SDK...")
+    log("✓ Initializing Traceloop SDK...")
     Traceloop.init(
         app_name=SERVICE_NAME,
         api_endpoint=os.environ.get('OTEL_OTLP_ENDPOINT', 'http://localhost:4318'),
         disable_batch=True,
         should_enrich_metrics=True,
     )
-    print("✓ Traceloop SDK initialized with: "+ os.environ.get('OTEL_OTLP_ENDPOINT', 'http://localhost:4318'))
+    log("✓ Traceloop SDK initialized with: "+ os.environ.get('OTEL_OTLP_ENDPOINT', 'http://localhost:4318'))
     
 # ------------------------------------------------------------------------------
 # Suppress verbose NAT agent logging and warnings
@@ -67,7 +86,7 @@ def initialize_traceloop():
 @st.cache_resource(show_spinner="Configuring logging...")
 def configure_logging():
     """Configure logging levels once (cached to prevent re-execution on every Streamlit rerun)."""
-    print("✓ Configuring logging levels...")
+    log("✓ Configuring logging levels...")
     logging.getLogger("nat.agent").setLevel(logging.CRITICAL)
     logging.getLogger("nat").setLevel(logging.CRITICAL)
     logging.getLogger("langchain_community").setLevel(logging.ERROR)
@@ -81,7 +100,7 @@ def configure_logging():
 @st.cache_resource(show_spinner="Config file validation...")
 def ensure_config_files_exist():
     """Verify required config files exist before app starts."""
-    print("✓ Ensuring required config files exist...")
+    log("✓ Ensuring required config files exist...")
 
     # Construct config file paths
     guardrails_config_path = Path("guardrails_config/config.yml")
@@ -94,13 +113,13 @@ def ensure_config_files_exist():
             missing_files.append(str(config_path))
     
     if missing_files:
-        print(f"❌ Error: The following config files were not found:")
+        log(f"❌ Error: The following config files were not found:")
         for file in missing_files:
-            print(f"   - {file}")
-        print(f"   Please run 'python update_config.py <config_type>' to generate config files.")
+            log(f"   - {file}")
+        log(f"   Please run 'python update_config.py <config_type>' to generate config files.")
         os._exit(1)  # Force immediate exit without cleanup
     
-    print("✓ All required config files found")
+    log("✓ All required config files found")
 
 # ------------------------------------------------------------------------------
 # guardrail functions
@@ -108,13 +127,13 @@ def ensure_config_files_exist():
 @st.cache_resource(show_spinner="Configuring guardrails...")
 def initialize_guardrails():
     """Initialize guardrails configuration once (cached to prevent re-initialization on every Streamlit rerun)."""
-    print("✓ Initializing guardrails configuration...")
+    log("✓ Initializing guardrails configuration...")
     try:
         # Load guardrails configuration
         guardrails_path = Path(__file__).parent / "guardrails_config"
         
         if not guardrails_path.exists():
-            print(f"⚠️ Guardrails config not found at: {guardrails_path}")
+            log(f"⚠️ Guardrails config not found at: {guardrails_path}")
             return None
         
         rails_config = RailsConfig.from_path(str(guardrails_path))
@@ -141,14 +160,14 @@ def initialize_guardrails():
             rails.register_action(check_input_length, "check_input_length")
             rails.register_action(check_politics, "check_politics")
             
-            print("✓ Guardrails initialized successfully")
+            log("✓ Guardrails initialized successfully")
             return rails
         except ImportError as e:
-            print(f"⚠️ Could not load custom actions: {e}")
+            log(f"⚠️ Could not load custom actions: {e}")
             return rails
             
     except Exception as e:
-        print(f"❌ Error initializing guardrails: {e}")
+        log(f"❌ Error initializing guardrails: {e}")
         return None
 
 async def check_input_guardrails(rails, user_input):
@@ -160,7 +179,7 @@ async def check_input_guardrails(rails, user_input):
         )
         end_time = time.time()
         duration = end_time - start_time
-        print(f"⏱️  Input guardrail execution time: {duration:.2f} seconds")
+        log(f"⏱️  Input guardrail execution time: {duration:.2f} seconds")
         
         # Check if input was blocked
         # Handle GenerationResponse objects (from NeMo Guardrails)
@@ -194,7 +213,7 @@ async def check_output_guardrails(rails, user_input, workflow_result):
         )
         end_time = time.time()
         duration = end_time - start_time
-        print(f"⏱️  Output guardrail execution time: {duration:.2f} seconds")
+        log(f"⏱️  Output guardrail execution time: {duration:.2f} seconds")
         
         # Check if output was blocked
         # Handle GenerationResponse objects (from NeMo Guardrails)
@@ -233,7 +252,7 @@ async def run_nat_workflow(user_input, nat_config_path):
                     workflow_result = await runner.result(to_type=str)
                 end_time = time.time()
                 duration = end_time - start_time
-                print(f"⏱️  NAT workflow execution time: {duration:.2f} seconds")
+                log(f"⏱️  NAT workflow execution time: {duration:.2f} seconds")
         return True, str(workflow_result)
     except Exception as e:
         error_msg = str(e)
@@ -248,7 +267,7 @@ async def run_nat_workflow(user_input, nat_config_path):
 # ------------------------------------------------------------------------------
 async def process_query(user_input, user_option_guardrail, rails, nat_config_path, status_text=None):
     """Main processing function that coordinates all steps."""
-    print("Processing", user_option_guardrail, "query:", user_input)
+    log(f"Processing {user_option_guardrail} query: {user_input}")
     results = {
         "input_safe": False,
         "input_message": "",
