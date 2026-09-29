@@ -60,6 +60,9 @@ nat_cache/
 # Jupyter
 .ipynb_checkpoints
 
+# local files
+LOCAL-FILES/
+
 # Distribution / packaging
 pip-log.txt
 pip-delete-this-directory.txt
