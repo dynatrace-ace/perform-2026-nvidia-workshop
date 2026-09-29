@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nim-embedqa-pvc
+  namespace: nim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nim-embedqa
+  namespace: nim
+  labels:
+    app: nim-embedqa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nim-embedqa
+  template:
+    metadata:
+      labels:
+        app: nim-embedqa
+    spec:
+      containers:
+        - name: nim-embedqa
+          image: nvcr.io/nim/nvidia/nv-embedqa-e5-v5:latest
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: NGC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ngc-api-key
+                  key: NGC_API_KEY
+            - name: NIM_CACHE_PATH
+              value: /opt/nim/.cache
+          resources:
+            limits:
+              nvidia.com/gpu: "1"
+            requests:
+              nvidia.com/gpu: "1"
+          volumeMounts:
+            - name: nim-cache
+              mountPath: /opt/nim/.cache
+          readinessProbe:
+            httpGet:
+              path: /v1/health/ready
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /v1/health/live
+              port: 8000
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            failureThreshold: 5
+      volumes:
+        - name: nim-cache
+          persistentVolumeClaim:
+            claimName: nim-embedqa-pvc
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nim-embedqa
+  namespace: nim
+  labels:
+    app: nim-embedqa
+spec:
+  selector:
+    app: nim-embedqa
+  ports:
+    - name: http
+      port: 8004
+      targetPort: 8000
+      protocol: TCP
+  type: ClusterIP

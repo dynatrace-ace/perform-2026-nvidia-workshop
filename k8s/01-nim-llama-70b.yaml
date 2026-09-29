@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nim-llama-70b-pvc
+  namespace: nim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nim-llama-70b
+  namespace: nim
+  labels:
+    app: nim-llama-70b
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nim-llama-70b
+  template:
+    metadata:
+      labels:
+        app: nim-llama-70b
+    spec:
+      containers:
+        - name: nim-llama-70b
+          image: nvcr.io/nim/meta/llama-3.1-70b-instruct:latest
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: NGC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ngc-api-key
+                  key: NGC_API_KEY
+            - name: NIM_CACHE_PATH
+              value: /opt/nim/.cache
+          resources:
+            limits:
+              nvidia.com/gpu: "4"
+            requests:
+              nvidia.com/gpu: "4"
+          volumeMounts:
+            - name: nim-cache
+              mountPath: /opt/nim/.cache
+          readinessProbe:
+            httpGet:
+              path: /v1/health/ready
+              port: 8000
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 60
+          livenessProbe:
+            httpGet:
+              path: /v1/health/live
+              port: 8000
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            failureThreshold: 5
+      volumes:
+        - name: nim-cache
+          persistentVolumeClaim:
+            claimName: nim-llama-70b-pvc
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nim-llama-70b
+  namespace: nim
+  labels:
+    app: nim-llama-70b
+spec:
+  selector:
+    app: nim-llama-70b
+  ports:
+    - name: http
+      port: 8001
+      targetPort: 8000
+      protocol: TCP
+  type: ClusterIP

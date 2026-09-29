@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nim-content-safety-pvc
+  namespace: nim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nim-content-safety
+  namespace: nim
+  labels:
+    app: nim-content-safety
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nim-content-safety
+  template:
+    metadata:
+      labels:
+        app: nim-content-safety
+    spec:
+      containers:
+        - name: nim-content-safety
+          image: nvcr.io/nim/nvidia/llama-3.1-nemoguard-8b-content-safety:latest
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: NGC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ngc-api-key
+                  key: NGC_API_KEY
+            - name: NIM_CACHE_PATH
+              value: /opt/nim/.cache
+          resources:
+            limits:
+              nvidia.com/gpu: "1"
+            requests:
+              nvidia.com/gpu: "1"
+          volumeMounts:
+            - name: nim-cache
+              mountPath: /opt/nim/.cache
+          readinessProbe:
+            httpGet:
+              path: /v1/health/ready
+              port: 8000
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 60
+          livenessProbe:
+            httpGet:
+              path: /v1/health/live
+              port: 8000
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            failureThreshold: 5
+      volumes:
+        - name: nim-cache
+          persistentVolumeClaim:
+            claimName: nim-content-safety-pvc
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nim-content-safety
+  namespace: nim
+  labels:
+    app: nim-content-safety
+spec:
+  selector:
+    app: nim-content-safety
+  ports:
+    - name: http
+      port: 8002
+      targetPort: 8000
+      protocol: TCP
+  type: ClusterIP

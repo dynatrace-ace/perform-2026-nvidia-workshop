@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nim-topic-control-pvc
+  namespace: nim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nim-topic-control
+  namespace: nim
+  labels:
+    app: nim-topic-control
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nim-topic-control
+  template:
+    metadata:
+      labels:
+        app: nim-topic-control
+    spec:
+      containers:
+        - name: nim-topic-control
+          image: nvcr.io/nim/nvidia/llama-3.1-nemoguard-8b-topic-control:latest
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: NGC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ngc-api-key
+                  key: NGC_API_KEY
+            - name: NIM_CACHE_PATH
+              value: /opt/nim/.cache
+          resources:
+            limits:
+              nvidia.com/gpu: "1"
+            requests:
+              nvidia.com/gpu: "1"
+          volumeMounts:
+            - name: nim-cache
+              mountPath: /opt/nim/.cache
+          readinessProbe:
+            httpGet:
+              path: /v1/health/ready
+              port: 8000
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 60
+          livenessProbe:
+            httpGet:
+              path: /v1/health/live
+              port: 8000
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            failureThreshold: 5
+      volumes:
+        - name: nim-cache
+          persistentVolumeClaim:
+            claimName: nim-topic-control-pvc
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nim-topic-control
+  namespace: nim
+  labels:
+    app: nim-topic-control
+spec:
+  selector:
+    app: nim-topic-control
+  ports:
+    - name: http
+      port: 8003
+      targetPort: 8000
+      protocol: TCP
+  type: ClusterIP
